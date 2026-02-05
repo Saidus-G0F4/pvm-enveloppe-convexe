@@ -1,0 +1,147 @@
+\documentclass[12pt,french]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref} % Pour les liens dans la table des matières
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+
+
+
+
+
+% --- Packages essentiels ---
+
+
+
+\usepackage{amsmath, amssymb}
+\usepackage{listings} % Pour le code source
+\usepackage{xcolor}
+
+
+% Configuration pour le code source
+\lstset{
+    language=C, 
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    breaklines=true,
+    extendedchars=true,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ç}{{\c{c}}}1 % Ajoute ceci pour les accents
+}
+
+
+
+\begin{document}
+
+% --- PAGE DE GARDE ---
+\begin{titlepage}
+    \centering
+    \includegraphics[width=0.6\textwidth]{ubo.png}\\[1.5cm] 
+    
+    \Large Université de Bretagne Occidentale\\[0.5cm]
+    \large Faculté des Sciences \& Techniques\\[2cm]
+
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    { \huge \bfseries Programmation paralèlle haute performance \\[0.4cm] }
+    \large \textit{Rapport : Caclul d'enveloppe convexe} \\
+    \rule{\linewidth}{0.5mm} \\[3cm]
+
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushleft} \large
+            \emph{Auteurs :}\\
+            Corre Alexandre\\
+            Zerrouki Said
+        \end{flushleft}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushright} \large
+            \emph{Module :}\\
+            Programmation paralèlle haute performance \\
+            
+        \end{flushright}
+    \end{minipage}
+
+    \vfill
+    {\large \today}
+\end{titlepage}
+
+% --- TABLE DES MATIÈRES ---
+\newpage
+\tableofcontents
+\newpage
+
+
+% --- 1. Descriptif du problème ---
+\section{Description du problème}
+% en gras 
+\textbf{Qu'est-ce que l'enveloppe convexe ?}\\
+L'enveloppe convexe d'un ensemble de points $S$ est le plus petit polygone convexe qui contient tous les points de $S$.\\
+On peut utiliser l'analogie de l'élastique : imaginons que chaque point de notre ensemble soit un clou planté sur une planche. Si on entoure tous ces clous avec un élastique et qu'on le relâche, la forme finale prise par l'élastique représente l'enveloppe convexe.\\
+Les points qui touchent l'élastique deviennent les sommets du polygone, tandis que les autres points se retrouvent à l'intérieur. Le calcul de l'enveloppe convexe consiste à identifier, parmi une nuée de points, ceux qui constituent la "frontière" extérieure. \\
+Plusieurs algorithmes existent, variant selon leur complexité et leur aptitude à être parallélisés :\\
+\begin{itemize}
+% i want item with the small circle
+\item[ \textbullet ] \textbf{Marche de Jarvis}: 
+On part du point le plus à gauche (qui fait forcément partie de l'enveloppe) et on "enroule" l'ensemble en cherchant à chaque étape le point qui présente l'angle le plus externe. C'est simple mais lent pour un grand nombre de points ($O(nh)$).\\
+\item[ \textbullet ] \textbf{Parcours de Graham} : On trie les points selon leur angle polaire par rapport à un point pivot, puis on parcourt la liste en éliminant les points qui créent un "virage à droite". Sa complexité est de $O(n \log n)$.\\
+\item[ \textbullet ] \textbf{QuickHull} : C'est l'approche la plus commune pour la programmation parallèle. \\
+\begin{itemize}
+\item On trouve les deux points extrêmes (gauche et droite) pour diviser l'ensemble en deux groupes. 
+\item Pour chaque groupe, on cherche le point le plus éloigné de la ligne reliant les extrêmes pour former un triangle. 
+\item On ignore les points à l'intérieur du triangle et on recommence récursivement pour les zones extérieures. 
+\item \textbf{Fusion} : Les résultats des différents processeurs sont ensuite combinés pour former l'enveloppe finale.\\
+\end{itemize}
+\end{itemize}
+L'objectif est de déterminer le plus petit ensemble convexe contenant un ensemble de points donnés $S$ dans un plan $\mathbb{R}^2$. 
+Visualisez cela comme un élastique entourant un ensemble de clous.
+
+\newpage
+% --- 2. Algorithme parallèle ---
+\section{Algorithme parallèle}
+Je vais proposer une parallélisation simple de l'algorithme
+\begin{itemize}
+    \item[\textbullet] \textbf{Stratégie :} Diviser pour régner (Divide and Conquer).
+    \item[\textbullet] \textbf{Décomposition :} Comment les points sont répartis entre les processeurs/threads.
+    \item[\textbullet] \textbf{Fusion :} Comment les enveloppes locales sont fusionnées pour former l'enveloppe globale.
+\end{itemize}
+
+% --- 3. Structures de données ---
+\section{Structures de données}
+On va décrire les choix techniques :\\
+tout ce qui concerne les Structures de données
+
+
+% --- 4. Parallélisation et Code ---
+\section{Implémentation de la parallélisation}
+On va expliquer comment on a implemente la parallélisation.
+on va expliquer comment on a fait la gestion des zones critiques ou la distribution des charges.
+
+% --- 5. Trace d'exécution et Résultats ---
+\section{Résultats et Traces d'exécution}
+On va ajouter tout ce qui est graphique stats etc.
+% \begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.7\textwidth]{enveloppe_convexe.png}
+%    \caption{Tracé de l'enveloppe convexe obtenue.}
+% \end{figure}
+
+% --- Conclusion et État d'avancement ---
+\section{Conclusion et État d'avancement}
+On va résumer ce qui fonctionne et ce qui reste à optimiser. Mentionnez si le projet est totalement abouti ou s'il reste des cas particuliers (points alignés, etc.) à traiter.
+
+\clearpage
+% --- Annexes ---
+\appendix
+\section{Sources du projet}
+\begin{lstlisting}
+// On va inserer ici un extrait significatif de nos fichiers
+\end{lstlisting}
+
+
+\end{document}
